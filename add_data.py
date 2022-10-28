@@ -14,14 +14,29 @@ drop_required = {"Class": ["class_name", "classes"], "Student": ["first_name", "
 
 db = Database()
 
+drop_values = {}
+
 
 def get_data_from_drop_and_insert(fields_dict, value):
     values = []
+    print(fields_dict)
     for val in fields_dict:
         if val not in drop_required:
+            print(val, "not in")
             values.append(fields_dict[val].get())
         else:
-
+            print(val, "in")
+            selected = fields_dict[val].get()
+            print(selected)
+            if val == "Class":
+                values.append(db.get_fk_mapping_class(str(selected)))
+            elif val == "Student":
+                values.append(db.get_fk_mapping_student(str(selected)))
+            elif val == "Exam":
+                values.append(db.get_fk_mapping_exam(str(selected)))
+            elif val == "Subject":
+                values.append(db.get_fk_mapping_subject(str(selected)))
+    print(values)
     if value == "classes":
         db.add_data_classes(values)
 
@@ -37,35 +52,44 @@ def get_data_from_drop_and_insert(fields_dict, value):
     elif value == "subjects":
         db.add_data_subjects(values)
 
+    db.db.commit()
     db.db.close()
+
+
+"""
+def selected_css_from_drop(field, fields_dict, selected_drop_values):
+    print("got run")
+    print(selected_drop_values)
+    fields_dict[field] = selected_drop_values[field]
+"""
 
 
 def dropdown_selected(value):
     drop.forget()
     fields_dict = {}
+    selected_drop_values = {}
 
     # TODO: Add label
-
     for field in fields_to_show[value]:
         if field not in drop_required:
-            text = tk.StringVar()
-            text.set(field)
-            fields_dict[field] = tk.Entry(add_container, textvariable=text)
+            edit_text = tk.StringVar()
+            edit_text.set(field)
+            fields_dict[field] = tk.Entry(add_container, textvariable=edit_text)
             fields_dict[field].pack()
         else:
-            print(fields_dict)
-            print(drop_required)
-            print(field)
-            text = tk.StringVar()
-            text.set(field)
-            val_drop = tk.OptionMenu(add_container, text,
-                                     *db.existing_values(drop_required[field][0], drop_required[field][1]),
-                                     command=dropdown_selected)
-            val_drop.config(height=1, width=5)
-            val_drop.pack()
+            fields_dict[field] = tk.StringVar()
+            fields_dict[field].set(field)
+            menu = tk.OptionMenu(add_container, fields_dict[field], "",
+                                 *db.existing_values(drop_required[field][0],
+                                                     drop_required[field][1])
+                                 )
+
+            menu.config(height=1, width=5)
+            menu.pack()
 
     tk.Button(add_container, text="Enter", font=("Courier", 16),
               command=lambda: get_data_from_drop_and_insert(fields_dict, value)).pack()
+    print(len(fields_dict))
 
 
 def control_add_data_container(container):
