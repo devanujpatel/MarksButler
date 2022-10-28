@@ -36,7 +36,8 @@ class Database():
         self.db.commit()
 
     def add_data_marks(self, values):
-        self.cursor.execute("INSERT INTO marks (student_fk, exam_fk, subject_fk, marks) VALUES (%s, %s, %s, %s)", values)
+        self.cursor.execute("INSERT INTO marks (student_fk, exam_fk, subject_fk, marks) VALUES (%s, %s, %s, %s)",
+                            values)
         self.db.commit()
 
     def existing_values(self, field, table):
@@ -46,17 +47,14 @@ class Database():
             return_list.append(val_tup[0])
         return return_list
 
-
     def get_fk_mapping_class(self, where_condition_value):
-        print(type(where_condition_value), where_condition_value)
         if where_condition_value[0] == "(":
             self.cursor.execute("SELECT class_pk FROM classes WHERE class_name = %s", eval(where_condition_value))
         else:
-            self.cursor.execute("SELECT class_pk FROM classes WHERE class_name = %s", (where_condition_value,))
+            self.cursor.execute("SELECT class_pk FROM classes WHERE class_name = '" + where_condition_value + "'")
         return self.cursor.fetchall()[0][0]
 
     def get_fk_mapping_subject(self, where_condition_value):
-        print(type(where_condition_value), where_condition_value)
         if where_condition_value[0] == "(":
             self.cursor.execute("SELECT subject_pk FROM subjects WHERE subject_name = %s", eval(where_condition_value))
         else:
@@ -64,49 +62,25 @@ class Database():
         return self.cursor.fetchall()[0][0]
 
     def get_fk_mapping_exam(self, where_condition_value):
-        print(type(where_condition_value), where_condition_value)
         if where_condition_value[0] == "(":
             self.cursor.execute("SELECT exam_pk FROM exams WHERE exam_name = %s", eval(where_condition_value))
         else:
-            self.cursor.execute("SELECT exam_pk FROM exams WHERE exam_name = %s", (where_condition_value,))
+            self.cursor.execute("SELECT exam_pk FROM exams WHERE exam_name = '" + where_condition_value + "'")
         return self.cursor.fetchall()[0][0]
 
     def get_fk_mapping_student(self, where_condition_value):
-        print(type(where_condition_value), where_condition_value)
         if where_condition_value[0] == "(":
             self.cursor.execute("SELECT student_pk FROM students WHERE first_name = %s", eval(where_condition_value))
         else:
             self.cursor.execute("SELECT student_pk FROM students WHERE first_name = %s", (where_condition_value,))
         return self.cursor.fetchall()[0][0]
 
-
-
-"""query = 'INSERT INTO %s('
-        for i in fields_to_insert[table]:
-            query += "%s,"
-        query += "\b) VALUES ("
-
-        for i in values:
-            query += "'%s',"
-        query += "\b);"
-
-        placeholders = [table] + fields_to_insert[table] + values
-        print(placeholders)
-
-        print(query)"""
-
-"""
-        query = 'INSERT INTO ' + table + ' ('
-        for val in fields_to_insert[table]:
-            query += str(val) + ','
-        query += '\b)'
-
-        query += ' VALUES ('
-        for val in values:
-            query += '\'' + str(val) + '\','
-        query += '\b)'
-        print(query)
-        self.cursor.execute(query)
-        print(query)
-        self.db.commit()
-        """
+    def get_marks_data(self, s_exam, s_class):
+        self.cursor.execute("""select s.first_name, s.last_name, marks, su.subject_name from marks	
+	                            join students as s on s.student_pk = marks.student_fk
+                                join exams as e on marks.exam_fk = e.exam_pk
+                                join subjects as su on marks.subject_fk = su.subject_pk
+                                join classes as c on c.class_pk = s.class_fk
+                                where c.class_pk = CAST(%s as UNSIGNED) and e.exam_pk = CAST(%s as UNSIGNED);""",
+                            (self.get_fk_mapping_class(s_class), self.get_fk_mapping_exam(s_exam)))
+        return self.cursor.fetchall()

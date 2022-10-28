@@ -1,5 +1,5 @@
 import tkinter as tk
-import add_data
+import add_data, view_data
 
 container = tk.Tk()
 
@@ -17,14 +17,14 @@ def add_button_clicked():
     start_frame.pack_forget()
     add_data_container = tk.Frame(container, height=height, width=width)
     add_data_container.pack()
-    add_data.control_add_data_container(add_data_container)
-
+    add_data.control_add_data_container(add_data_container, start_frame)
 
 
 def view_button_clicked():
     start_frame.pack_forget()
     view_data_container = tk.Frame(container, height=height, width=width)
     view_data_container.pack()
+    view_data.control_view_data(view_data_container)
 
 
 tk.Button(start_frame, text="Add data", command=lambda: add_button_clicked(), font=("Courier", 16)).place(relx=.4,

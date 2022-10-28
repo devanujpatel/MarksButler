@@ -53,21 +53,13 @@ def get_data_from_drop_and_insert(fields_dict, value):
         db.add_data_subjects(values)
 
     db.db.commit()
-    db.db.close()
-
-
-"""
-def selected_css_from_drop(field, fields_dict, selected_drop_values):
-    print("got run")
-    print(selected_drop_values)
-    fields_dict[field] = selected_drop_values[field]
-"""
+    add_container.forget()
+    _start_frame.pack()
 
 
 def dropdown_selected(value):
     drop.forget()
     fields_dict = {}
-    selected_drop_values = {}
 
     # TODO: Add label
     for field in fields_to_show[value]:
@@ -89,13 +81,13 @@ def dropdown_selected(value):
 
     tk.Button(add_container, text="Enter", font=("Courier", 16),
               command=lambda: get_data_from_drop_and_insert(fields_dict, value)).pack()
-    print(len(fields_dict))
 
 
-def control_add_data_container(container):
+def control_add_data_container(container, start_frame):
     clicked = tk.StringVar()
-    global add_container
+    global add_container, _start_frame
     add_container = container
+    _start_frame = start_frame
     # initial menu text
     clicked.set("What do you want to insert?")
     global drop
